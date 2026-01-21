@@ -1,0 +1,56 @@
+@charset "UTF-8";
+
+:root {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+  --page-bg: #f4f6fb;
+  --surface: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #5b6478;
+  --border: #d8dfef;
+  --border-soft: rgba(15, 23, 42, 0.06);
+  --primary: #2b50ff;
+  --primary-strong: #1d37c5;
+  --accent: #f97316;
+  --card-shadow: 0 35px 60px rgba(15, 23, 42, 0.08);
+}
+
+:root.theme-dark {
+  --page-bg: #05070f;
+  --surface: #111629;
+  --text-primary: #f8fbff;
+  --text-muted: #a3afd4;
+  --border: rgba(255, 255, 255, 0.18);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --primary: #5a7dff;
+  --primary-strong: #8fb1ff;
+  --accent: #fbbf24;
+  --card-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+}

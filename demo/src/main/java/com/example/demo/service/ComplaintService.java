@@ -1,0 +1,270 @@
+package com.example.demo.service;
+
+import com.example.demo.entity.*;
+import com.example.demo.payload.ComplaintRequestDTO;
+import com.example.demo.payload.NotificationDto;
+import com.example.demo.payload.OfficerComplaintResponse;
+import com.example.demo.repositories.ComplaintRepository;
+import com.example.demo.repositories.MapLocationRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class ComplaintService {
+
+    private final ComplaintRepository complaintRepository;
+    private final MapLocationRepository mapLocationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    // ====================== UPLOAD PATHS ======================
+    private static final String UPLOAD_ROOT =
+            System.getProperty("user.dir") + File.separator + "uploads";
+
+    private static final String COMPLAINT_UPLOAD_DIR =
+            UPLOAD_ROOT + File.separator + "complaints";
+
+    // ====================== CREATE ======================
+    public Complaint createFromDto(
+            ComplaintRequestDTO dto,
+            Citizen citizen,
+            MultipartFile image
+    ) {
+
+        if (dto.getCitizenName() == null || dto.getCitizenPhone() == null) {
+            throw new RuntimeException("Citizen name and phone number must be provided");
+        }
+
+        Complaint complaint = new Complaint();
+        complaint.setTitle(dto.getTitle());
+        complaint.setDescription(dto.getDescription());
+
+        if (dto.getCategory() != null) {
+            complaint.setCategory(ComplaintCategory.valueOf(dto.getCategory()));
+        }
+
+        complaint.setLocation(dto.getLocation());
+        complaint.setLatitude(dto.getLatitude());
+        complaint.setLongitude(dto.getLongitude());
+        complaint.setCitizen(citizen);
+        complaint.setCitizenName(dto.getCitizenName());
+        complaint.setCitizenPhone(dto.getCitizenPhone());
+        complaint.setShowCitizenInfoToAdmin(
+                dto.getShowCitizenInfoToAdmin() == null || dto.getShowCitizenInfoToAdmin()
+        );
+
+        complaint.setPriority(Priority.MEDIUM);
+        complaint.setStatus(ComplaintStatus.PENDING);
+        complaint.setComplaintStage(ComplaintStage.REGISTERED);
+
+        // ✅ Save image
+        if (image != null && !image.isEmpty()) {
+            complaint.setImageUrl(saveImage(image));
+        }
+
+        Complaint saved = complaintRepository.save(complaint);
+        saveMapLocation(saved);
+
+        sendNotification(
+                citizen.getEmail(),
+                saved.getId(),
+                saved.getStatus().name()
+        );
+
+        return saved;
+    }
+
+    // ====================== UPDATE ======================
+    public Complaint updateFromDto(
+            Long citizenId,
+            Long complaintId,
+            ComplaintRequestDTO dto,
+            MultipartFile image
+    ) {
+
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        if (!complaint.getCitizen().getId().equals(citizenId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (dto.getTitle() != null) complaint.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) complaint.setDescription(dto.getDescription());
+        if (dto.getCategory() != null) {
+            complaint.setCategory(ComplaintCategory.valueOf(dto.getCategory()));
+        }
+        if (dto.getLocation() != null) complaint.setLocation(dto.getLocation());
+        if (dto.getLatitude() != null) complaint.setLatitude(dto.getLatitude());
+        if (dto.getLongitude() != null) complaint.setLongitude(dto.getLongitude());
+        if (dto.getCitizenName() != null) complaint.setCitizenName(dto.getCitizenName());
+        if (dto.getCitizenPhone() != null) complaint.setCitizenPhone(dto.getCitizenPhone());
+        if (dto.getShowCitizenInfoToAdmin() != null) {
+            complaint.setShowCitizenInfoToAdmin(dto.getShowCitizenInfoToAdmin());
+        }
+        if (dto.getStatus() != null) {
+            complaint.setStatus(ComplaintStatus.valueOf(dto.getStatus()));
+        }
+
+        // ✅ Replace image safely
+        if (image != null && !image.isEmpty()) {
+            deleteImageIfExists(complaint.getImageUrl());
+            complaint.setImageUrl(saveImage(image));
+        }
+
+        Complaint saved = complaintRepository.save(complaint);
+        saveMapLocation(saved);
+
+        sendNotification(
+                saved.getCitizen().getEmail(),
+                saved.getId(),
+                "Updated: " + saved.getStatus().name()
+        );
+
+        return saved;
+    }
+
+    // ====================== DELETE ======================
+    public void deleteComplaint(Long citizenId, Long complaintId) {
+
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        if (!complaint.getCitizen().getId().equals(citizenId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        // ✅ Delete image from disk
+        deleteImageIfExists(complaint.getImageUrl());
+
+        complaintRepository.delete(complaint);
+
+        sendNotification(
+                complaint.getCitizen().getEmail(),
+                complaintId,
+                "Deleted"
+        );
+    }
+
+    // ====================== READ ======================
+    public List<Complaint> getComplaintsByCitizen(Citizen citizen) {
+        return complaintRepository.findByCitizen(citizen);
+    }
+
+    public Complaint getComplaintById(Long complaintId, Citizen citizen) {
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        if (citizen != null &&
+                !complaint.getCitizen().getId().equals(citizen.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        return complaint;
+    }
+
+    public Complaint updateComplaintStage(Long complaintId, ComplaintStage stage) {
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new RuntimeException("Complaint not found"));
+
+        complaint.setComplaintStage(stage);
+        return complaintRepository.save(complaint);
+    }
+
+    // ====================== IMAGE SAVE ======================
+    private String saveImage(MultipartFile image) {
+        try {
+            File dir = new File(COMPLAINT_UPLOAD_DIR);
+            if (!dir.exists()) dir.mkdirs();
+
+            String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            File file = new File(dir, filename);
+            image.transferTo(file);
+
+            // ✅ Stored in DB: include /uploads/ prefix for direct access
+            return "/uploads/complaints/" + filename;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save image", e);
+        }
+    }
+
+    // ====================== IMAGE DELETE ======================
+    private void deleteImageIfExists(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) return;
+
+        // Remove leading /uploads/ if present to locate file on disk
+        String path = imageUrl.startsWith("/uploads/") ? imageUrl.substring(9) : imageUrl;
+        File file = new File(UPLOAD_ROOT + File.separator + path);
+        if (file.exists() && !file.delete()) {
+            System.err.println("⚠ Failed to delete image: " + file.getAbsolutePath());
+        }
+    }
+
+    // ====================== MAP LOCATION ======================
+    private void saveMapLocation(Complaint complaint) {
+        MapLocation map = new MapLocation();
+        map.setLatitude(complaint.getLatitude());
+        map.setLongitude(complaint.getLongitude());
+        map.setCitizenId(complaint.getCitizen().getId());
+        map.setComplaintId(complaint.getId());
+        mapLocationRepository.save(map);
+    }
+
+    // ====================== WEBSOCKET ======================
+    private void sendNotification(String email, Long complaintId, String status) {
+        NotificationDto payload = new NotificationDto(complaintId, status);
+        messagingTemplate.convertAndSendToUser(email.toLowerCase(), "/queue/notify", payload);
+        messagingTemplate.convertAndSend("/topic/admin/complaints", payload);
+    }
+
+    // ====================== MAPPER ======================
+    public OfficerComplaintResponse mapToOfficerResponse(Complaint c) {
+        String locationText = (c.getLocation() == null || c.getLocation().isBlank())
+                ? "Coordinates: " + c.getLatitude() + ", " + c.getLongitude()
+                : c.getLocation();
+
+        Officer assignedOfficer = c.getAssignedOfficer();
+
+        return OfficerComplaintResponse.builder()
+                .id(c.getId())
+                .title(c.getTitle())
+                .category(c.getCategory() != null ? c.getCategory().name() : null)
+                .priority(c.getPriority() != null ? c.getPriority().name() : null)
+                .status(c.getStatus() != null ? c.getStatus().name() : null)
+                .description(c.getDescription())
+                .location(locationText)
+                .latitude(c.getLatitude())
+                .longitude(c.getLongitude())
+                .submissionDate(c.getSubmissionDate())
+                .imageUrl(c.getImageUrl())
+                .officerEvidenceUrl(c.getOfficerEvidenceUrl())
+                .resolutionDate(c.getResolutionDate())
+                .complaintStage(c.getComplaintStage() != null ? c.getComplaintStage().name() : null)
+                .assignedOfficerName(assignedOfficer != null ? assignedOfficer.getName() : null)
+                .assignedOfficerStatus(
+                        assignedOfficer != null && assignedOfficer.getStatus() != null
+                                ? assignedOfficer.getStatus().name()
+                                : null
+                )
+                .assignedOfficerDepartment(
+                        assignedOfficer != null && assignedOfficer.getDepartment() != null
+                                ? assignedOfficer.getDepartment().name()
+                                : null
+                )
+                .assignedOfficerActiveComplaints(
+                        assignedOfficer != null ? assignedOfficer.getActiveComplaints() : 0L
+                )
+                .officerRemark(c.getOfficerRemark())
+                .assignedDate(c.getAssignedDate())
+                .expectedCompletionDate(c.getExpectedCompletionDate())
+                .build();
+    }
+}

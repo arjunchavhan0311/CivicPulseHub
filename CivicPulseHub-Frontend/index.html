@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="src/assets/Logo.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CivicPulse Hub</title>
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('theme')
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isDark = saved ? saved === 'dark' : prefersDark
+          const html = document.documentElement
+          if (isDark) {
+            html.classList.add('dark')
+            html.style.colorScheme = 'dark'
+          } else {
+            html.classList.remove('dark')
+            html.style.colorScheme = 'light'
+          }
+        } catch (e) {
+          /* no-op */
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
