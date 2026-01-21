@@ -1,5 +1,4 @@
-<img width="1920" height="1080" alt="Screenshot 2026-01-22 010417" src="https://github.com/user-attachments/assets/254babbe-0ffa-438a-8045-3aff74a87989" /><img width="1412" height="764" alt="image" src="https://github.com/user-attachments/assets/74c8e270-1119-4f5f-9bf0-a0fcb5d8c667" /><img width="1390" height="814" alt="image" src="https://github.com/user-attachments/assets/3d1a3171-cbb1-4bdc-97f0-6a57e257c1ae" /><img width="1390" height="814" alt="image" src="https://github.com/user-attachments/assets/ad03fc85-e7d8-488d-9986-eb48ed6dfd9e" /><img width="1390" height="814" alt="image" src="https://github.com/user-attachments/assets/3034d173-77e8-489f-b95d-53bbaed72656" />🏛️ Civic Pulse Hub
-
+🏛️ Civic Pulse Hub
 Civic Pulse Hub is a full-stack civic complaint management system designed to bridge the gap between citizens and government authorities. 
 The platform enables citizens to raise complaints, track their status in real time, and ensures transparency, accountability, and efficient
 grievance redressal through role-based dashboards.
@@ -8,11 +7,17 @@ CivicPulse Hub provides an efficient and transparent solution for managing civic
 The system creates a smart, digital bridge between the government and citizens, making cities more responsive, organized, and truly “smart.”
 Though challenges like integration, awareness, and data accuracy exist, the platform significantly enhances civic administration and public trust.
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010302" src="https://github.com/user-attachments/assets/eba07567-d5fa-44f7-92ef-80bf437dee88" />
+
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010336" src="https://github.com/user-attachments/assets/b4605afe-8aa5-4c6c-90e1-bef4c06dc77d" />
+
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010400" src="https://github.com/user-attachments/assets/974d6668-d483-4626-830b-579f075dae50" />
+
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010417" src="https://github.com/user-attachments/assets/aeb1ebf3-786d-46dc-ab90-773cddb5ac08" />
+
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010446" src="https://github.com/user-attachments/assets/86b4ddc9-8f40-4017-ad59-ffa71cc6cb65" />
+
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010515" src="https://github.com/user-attachments/assets/33daa29d-2f42-42b5-bc74-090b9f4cfe53" />
+
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010555" src="https://github.com/user-attachments/assets/85213f08-8d28-4db3-a929-3076702f5633" />
 
 
