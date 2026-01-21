@@ -1,16 +1,17 @@
-🏛️ Civic Pulse Hub
-Civic Pulse Hub is a full-stack civic complaint management system designed to bridge the gap between citizens and government authorities. 
-The platform enables citizens to raise complaints, track their status in real time, and ensures transparency, accountability, and efficient
-grievance redressal through role-based dashboards.
+<h1>🏛️ Civic Pulse Hub</h1>
+Civic Pulse Hub is a full-stack civic complaint management system designed to bridge the gap between citizens and government authorities.<br> 
+The platform enables citizens to raise complaints, track their status in real time, and ensures transparency, accountability, and efficient<br>
+grievance redressal through role-based dashboards.<br>
 
 CivicPulse Hub provides an efficient and transparent solution for managing civic complaints.It reduces delays, improves communication, and increases citizen satisfaction.
 The system creates a smart, digital bridge between the government and citizens, making cities more responsive, organized, and truly “smart.”
 Though challenges like integration, awareness, and data accuracy exist, the platform significantly enhances civic administration and public trust.
-<img width="1920" height="1080" alt="Screenshot 2026-01-22 010302" src="https://github.com/user-attachments/assets/eba07567-d5fa-44f7-92ef-80bf437dee88" />
 
-<img width="1920" height="1080" alt="Screenshot 2026-01-22 010336" src="https://github.com/user-attachments/assets/b4605afe-8aa5-4c6c-90e1-bef4c06dc77d" />
+<img width="1000" height="900" alt="Screenshot 2026-01-22 010302" src="https://github.com/user-attachments/assets/eba07567-d5fa-44f7-92ef-80bf437dee88" />
 
-<img width="1920" height="1080" alt="Screenshot 2026-01-22 010400" src="https://github.com/user-attachments/assets/974d6668-d483-4626-830b-579f075dae50" />
+<img width="900" height="800" alt="Screenshot 2026-01-22 010336" src="https://github.com/user-attachments/assets/b4605afe-8aa5-4c6c-90e1-bef4c06dc77d" />
+
+<img width="950" height="850" alt="Screenshot 2026-01-22 010400" src="https://github.com/user-attachments/assets/974d6668-d483-4626-830b-579f075dae50" />
 
 <img width="1920" height="1080" alt="Screenshot 2026-01-22 010417" src="https://github.com/user-attachments/assets/aeb1ebf3-786d-46dc-ab90-773cddb5ac08" />
 
